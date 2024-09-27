@@ -1,7 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 /* import HomeView from '../views/HomeView.vue' */
-
+//创建路由实例
+import Login from '@/views/Login/index.vue'
+import Layout from '@/views/Layout/index.vue'
+import Home from '@/views/Home/index.vue'
+import Category from '@/views/Category/index.vue'
 const router = createRouter({
+  //创建history模式路由， 还有一种哈希路由模式
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     /* {
@@ -17,6 +22,24 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue')
     } */
+   {
+    path: '/',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        component: Home
+      },
+      {
+        path: '/category',
+        component: Category
+      }
+    ]
+   },
+   {
+    path: '/login',
+    component: Login
+   }
   ]
 })
 

@@ -5,16 +5,18 @@ import LayoutFooter from './components/LayoutFooter.vue'
 import LayoutFixed from './components/LayoutFixed.vue'
 import { useCategoryrStore } from '@/stores/category'
 import { onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 const { getCategory } = useCategoryrStore()
+const {  categoryList } = storeToRefs(useCategoryrStore())
 onMounted(()=>{
   getCategory()
 })
 </script>
 
 <template>
-  <LayoutFixed/>
+  <LayoutFixed />
   <LayoutNav />
-  <LayoutHeader />
+  <LayoutHeader :categoryList="categoryList"/>
   <RouterView />
   <LayoutFooter/>
 </template>

@@ -1,7 +1,14 @@
 <script setup>
-import { useCategoryrStore } from '@/stores/category'
-import { storeToRefs } from 'pinia'
-const { categoryList } =storeToRefs(useCategoryrStore())
+/* import { useCategoryrStore } from '@/stores/category'
+import { storeToRefs } from 'pinia' */
+import { watchEffect } from 'vue'
+//const { categoryList } =storeToRefs(useCategoryrStore())
+const props = defineProps({
+  categoryList:Array
+})
+watchEffect(()=>{
+  console.log(props.categoryList)
+})
 
 </script>
 

@@ -20,7 +20,7 @@ watchEffect(()=>{
       </h1>
       <ul class="app-header-nav">
         <li class="home" v-for="item in categoryList" :key="item.id">
-          <RouterLink to="/">{{item.name}}</RouterLink>
+          <RouterLink active-class="active" :to="`/category/${item.id}`">{{item.name}}</RouterLink>
         </li>
       </ul>
       <div class="search">
@@ -37,7 +37,10 @@ watchEffect(()=>{
 <style scoped lang='scss'>
 .app-header {
   background: #fff;
-
+  .active{
+    color:$xtxColor;
+    border-bottom: 1px solid $xtxColor;
+  }
   .container {
     display: flex;
     align-items: center;

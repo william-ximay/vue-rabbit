@@ -5,6 +5,7 @@ import Login from '@/views/Login/index.vue'
 import Layout from '@/views/Layout/index.vue'
 import Home from '@/views/Home/index.vue'
 import Category from '@/views/Category/index.vue'
+import SubCategory from '@/views/SubCategory/index.vue'
 const router = createRouter({
   //创建history模式路由， 还有一种哈希路由模式
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,21 +24,30 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue')
     } */
    {
-    path: '/',
-    component: Layout,
-    children: [
-      {
-        path: '',
-        component: Home
-      },
-      {
-        path: '/category',
-        component: Category
-      }
-    ]
-   },
+      path: '/',
+      name: 'layout',
+      component: Layout,
+      children: [
+        {
+          path: '',
+          name: 'home',
+          component: Home
+        },
+        {
+          path: 'category/:id',
+          name: 'category',
+          component: Category
+        },
+        {
+          path: 'category/sub/:id',
+          name: 'subcategory',
+          component: SubCategory
+        }
+      ]
+    },
    {
     path: '/login',
+    name: 'login',
     component: Login
    }
   ]

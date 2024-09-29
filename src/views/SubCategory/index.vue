@@ -1,7 +1,7 @@
 <script setup>
 import ProductsItem from '../Home/components/ProductsItem.vue'
-import { useToSubList } from './composables/useTOSubList'
-import { sueGetSub } from './composables/useGetSub'
+import { useToSubList } from './composables/useToSubList'
+import { useGetSub } from './composables/useGetSub'
 const { categoryList } = useToSubList()
 
 /* const getCategoryList = async () => {
@@ -11,7 +11,7 @@ const { categoryList } = useToSubList()
 onMounted(() => {
   getCategoryList()
 }) */
-const { productList, tabChange, reqData } = sueGetSub()
+const { productList, tabChange, reqData, load, disabled } = useGetSub()
 /* const productList = ref([])
 const reqData = ref({
   categoryId: route.params.id,
@@ -29,6 +29,7 @@ const getProductList = async () => {
 onMounted(()=>{
   getProductList()
 }) */
+
 </script>
 
 <template>
@@ -48,7 +49,7 @@ onMounted(()=>{
         <el-tab-pane label="最高人气" name="orderNum"></el-tab-pane>
         <el-tab-pane label="评论最多" name="evaluateNum"></el-tab-pane>
       </el-tabs>
-      <div class="body">
+      <div class="body" v-infinite-scroll="load" :infinite-scroll-disabled="disabled">
          <!-- 商品列表-->
           <ProductsItem v-for="item in productList" :key="item.id" :good="item"/>
       </div>

@@ -34,7 +34,6 @@ export function getCategorySub (id) {
  * }
  */
 export function getSubCategory (data) {
-  console.log(data)
   return httpInstance({
     url: '/category/goods/temporary',
     method: 'post',

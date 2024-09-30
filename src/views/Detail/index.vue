@@ -3,17 +3,48 @@ import { getDetail } from '@/apis/detail.js';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import DetailHot from './components/DetailHot.vue'
+import { ElMessage } from 'element-plus'
+import { useCartStore } from '@/stores/cart'
 const detailData = ref({})
 const route = useRoute()
-
+// 新鲜好物商品详情数据获取
 const getDetailData = async () => {
   const res = await getDetail(route.params.id)
   detailData.value = res.data.result
   console.log( detailData.value)
 }
-
+//商品规格
+let skuObj = {}
 const skuChange = (sku) => {
   console.log(sku)
+  skuObj = sku
+}
+//商品数量
+const count = ref(0)
+const countChange = (count) => {
+  console.log(count)
+}
+// 添加到购物车
+const cart = useCartStore()
+const addToCart = () => {
+  if (skuObj.skuId && count.value !== 0) {
+    //可以加入购物车
+    cart.addAllCartList({
+      id: detailData.value.id,// 商品id
+      name: detailData.value.name,// 商品名
+      picture: detailData.value.mainPictures[0], // 商品图片
+      price: detailData.value.price, // 商品价格
+      count: count.value, // 商品数量
+      skuId: skuObj.skuId, // 选择规格id
+      attrsText: skuObj.specsText, // 规格文本
+      selected: true // 商品是否选中
+    })
+  } else if ( count.value === 0){
+    ElMessage.warning({message: '请选择商品数量'})
+  } else {
+    //不可以加入购物车
+    ElMessage.warning({message: '请选择规格'})
+  }
 }
 onMounted(()=>{
   getDetailData()
@@ -91,10 +122,10 @@ onMounted(()=>{
               <!-- sku组件 -->
               <XtxSku :goods="detailData" @change="skuChange"/>
               <!-- 数据组件 -->
-
+               <el-input-number v-model="count" @change="countChange"/>
               <!-- 按钮组件 -->
               <div>
-                <el-button size="large" class="btn">
+                <el-button size="large" class="btn" @click="addToCart">
                   加入购物车
                 </el-button>
               </div>

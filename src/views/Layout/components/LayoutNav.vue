@@ -1,6 +1,25 @@
 <script setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
+import { useUserStore } from '@/stores/user'
+import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
+const { userData } = storeToRefs(useUserStore())
+const { clearUserData } = useUserStore()
+const router = useRouter()
 const isLogin = ref(false)
+if (userData.value.token){
+  console.log(userData.value.token)
+  isLogin.value = true
+} else {
+  isLogin.value = false
+}
+// 退出登录
+const confirm = () => {
+  console.log('确认')
+  clearUserData()
+  // isLogin.value = false
+  router.push({ name: 'login' })
+}
 </script>
 
 <template>
@@ -8,9 +27,9 @@ const isLogin = ref(false)
     <div class="container">
       <ul>
         <template v-if="isLogin">
-          <li><a href="javascript:;"><i class="iconfont icon-user"></i>周杰伦</a></li>
+          <li><a href="javascript:;"><i class="iconfont icon-user"></i>{{userData.account}}</a></li>
           <li>
-            <el-popconfirm title="确认退出吗?" confirm-button-text="确认" cancel-button-text="取消">
+            <el-popconfirm title="确认退出吗?" @confirm="confirm" confirm-button-text="确认" cancel-button-text="取消">
               <template #reference>
                 <a href="javascript:;">退出登录</a>
               </template>

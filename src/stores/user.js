@@ -1,6 +1,8 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { getLogin } from '@/apis/user'
+import { useCartStore } from './cart'
+import { mergeCart  } from '@/apis/cartAPI'
 const setLocalStorage = (data) => {
   localStorage.setItem('userData',JSON.stringify(data))
 }
@@ -16,11 +18,21 @@ export const useUserStore = defineStore('user', () => {
     const res = await getLogin({account, password})
     userData.value = res.data.result
     setLocalStorage(userData.value)
+    // 合并购物车
+    await mergeCart(useCartStore().allCartList.map(item => {
+      return {
+        skuId: item.skuId,
+        selected: item.selected,
+        count: item.count
+      }
+    }))
+    await useCartStore().getCartAPI()
   }
   // 退出时清除用户数据
   const clearUserData = () => {
     userData.value = {}
     localStorage.removeItem('userData')
+    useCartStore().deleteAll()
   }
   return { userData, getUserData, clearUserData }
 })

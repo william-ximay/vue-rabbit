@@ -7,6 +7,9 @@ import Home from '@/views/Home/index.vue'
 import Category from '@/views/Category/index.vue'
 import SubCategory from '@/views/SubCategory/index.vue'
 import Detail from '@/views/Detail/index.vue'
+import cartListCheck from '@/views/cartListCheck/index.vue'
+import CheckOut from '@/views/CheckOut/index.vue'
+import Pay from '@/views/Pay/index.vue'
 const router = createRouter({
   //创建history模式路由， 还有一种哈希路由模式
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,6 +51,21 @@ const router = createRouter({
           path: 'detail/:id',
           name: 'detail',
           component: Detail
+        },
+        {
+          path: 'cartcheck',
+          name: 'cartcheck',
+          component: cartListCheck
+        },
+        {
+          path: 'checkout',
+          name: 'checkout',
+          component: CheckOut
+        },
+        {
+          path: 'pay',
+          name: 'pay',
+          component: Pay
         }
       ]
     },

@@ -5,7 +5,7 @@ import router from '@/router/index.js'
 import axios from "axios"
 const httpInstance = axios.create({
   baseURL: 'http://pcapi-xiaotuxian-front-devtest.itheima.net',
-  timeout: 5000
+  timeout: 10000
 })
 // 添加请求拦截器
 httpInstance.interceptors.request.use(function (config) {
@@ -35,7 +35,7 @@ httpInstance.interceptors.response.use(function (response) {
       message: error.response?.data.message
     })
     //token 失效，跳转登陆页面
-    if (error.response.status === 401) {
+    if (error.response?.status === 401) {
       const { clearUserData } = useUserStore()
       clearUserData()
       router.push({ name: 'login' })

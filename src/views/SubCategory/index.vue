@@ -112,7 +112,14 @@ onMounted(()=>{
     display: flex;
     justify-content: center;
   }
-
-
+}
+::v-deep .el-tabs__item:hover{
+    color: $xtxColor;
+}
+::v-deep .el-tabs__item.is-active{
+  color: $xtxColor;
+}
+::v-deep .el-tabs__active-bar {
+  background-color: $xtxColor;
 }
 </style>

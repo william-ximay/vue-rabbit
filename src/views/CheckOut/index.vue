@@ -3,6 +3,7 @@ import { getCheckOut, toPay } from '@/apis/checkout'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
+import { addAddress } from '@/apis/address'
 const checkInfo = ref({})  // 订单对象
 const curAddress = ref({}) // 地址对象
 const router = useRouter()
@@ -17,6 +18,7 @@ const getCheckInfo = async () => {
 }
 // 控制弹框
 const toggleFlag = ref(false)
+const addFlag = ref(false)
 // 切换地址
 const activeAddress = ref({})
 const switchAddress = (item) => {
@@ -51,7 +53,60 @@ const createOrder = async () =>{
 onMounted(() => {
   getCheckInfo()
 })
-
+// 定义添加地址
+const formRef = ref(null)
+const ruleForm = ref({
+  "receiver": "",
+  "contact": "",
+  "provinceCode": "",
+  "cityCode": "",
+  "countyCode": "",
+  "address": "",
+  "postalCode": "",
+  "addressTags": "",
+  "isDefault": 1,
+  "fullLocation": ""
+})
+const rules = {
+  "receiver": [
+    { required: true, message: '姓名不能为空', trigger: 'blur'}
+  ],
+  "contact": [
+    { required: true, message: '联系电话不能为空', trigger: 'blur'},
+    { min: 11, max: 11, message: '请输入正确的联系方式', trigger: 'blur' },
+  ],
+  "postalCode": [
+    { required: true, message: '县区邮编不能为空', trigger: 'blur'},
+    { min: 6, max: 6, message: '请输入正确的县区邮编', trigger: 'blur' },
+  ],
+  "addressTags": [
+    { required: true, message: '地址类型不能为空', trigger: 'blur'}
+  ],
+  "fullLocation": [
+    { required: true, message: '省市区地址不能为空', trigger: 'blur'},
+  ],
+  "address": [
+    { required: true, message: '详细地址不能为空', trigger: 'blur'},
+  ]
+}
+const addToAddress = () =>{
+  formRef.value.validate(async (valid) => {
+    console.log(valid)
+    console.log(ruleForm.value)
+    await addAddress({
+      "receiver": ruleForm.value.receiver,
+      "contact": ruleForm.value.contact,
+      "provinceCode": ruleForm.value.provinceCode,
+      "cityCode": ruleForm.value.cityCode,
+      "countyCode": ruleForm.value.countyCode,
+      "address": ruleForm.value.address,
+      "postalCode": ruleForm.value.postalCode,
+      "addressTags": ruleForm.value.addressTags,
+      "isDefault": ruleForm.value.isDefault,
+      "fullLocation": ruleForm.value.fullLocation
+    })
+  })
+}
 </script>
 
 <template>
@@ -171,6 +226,31 @@ onMounted(() => {
     </template>
   </el-dialog>
   <!-- 添加地址 -->
+   <el-dialog title="添加收货地址" width="30%" center  v-model="addFlag">
+    <el-form class="addressWrapper" ref="formRef" :model="ruleForm" :rules="rules" >
+      <div class="text item">
+        <ul>
+        <el-form-item prop="receiver"><span>收<i />货<i />人：</span>
+        <el-input v-model="ruleForm.receiver"/></el-form-item>
+        <el-form-item prop="contact"><span>联系方式：</span><el-input v-model="ruleForm.contact"/></el-form-item>
+        <el-form-item prop="postalCode"><span>地址邮编：</span><el-input v-model="ruleForm.postalCode"/></el-form-item>
+        <el-form-item prop="fullLocation"><span>省市区地址：</span><el-input v-model="ruleForm.fullLocation"/></el-form-item>
+        <el-form-item prop="address"><span>详细地址：</span><el-input v-model="ruleForm.address"/></el-form-item>
+        <el-form-item prop="addressTags"><span>地址类型：</span><el-input v-model="ruleForm.addressTags"/></el-form-item>
+        <el-form-item><span>地址类型：</span><el-input v-model="ruleForm.isDefault"/></el-form-item>
+        <el-form-item><span>省份邮编：</span><el-input v-model="ruleForm.provinceCode"/></el-form-item>
+        <el-form-item><span>城市邮编：</span><el-input v-model="ruleForm.cityCode" /></el-form-item>
+        <el-form-item><span>区县邮编：</span><el-input v-model="ruleForm.countyCode"/></el-form-item>
+        </ul>
+      </div>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="addFlag = false">取消</el-button>
+        <el-button type="primary" @click="addToAddress">确定</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped lang="scss">
@@ -205,7 +285,9 @@ onMounted(() => {
     min-height: 90px;
     display: flex;
     align-items: center;
-
+    &:hover{
+      background-color: none;
+    }
     .none {
       line-height: 90px;
       color: #999;

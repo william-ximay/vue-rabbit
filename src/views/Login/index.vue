@@ -4,6 +4,7 @@ import 'element-plus/es/components/message/style/css'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { mobileAPI } from '@/apis/mobile'
 //表单校验(账户名和密码)
 const form = ref({
   account: '',
@@ -49,6 +50,64 @@ const handleLogin = () => {
     }
   })
 }
+const show = ref(true)
+/* const changeLogin = () =>{
+  show.value = !show.value
+} */
+// 表单校验(手机号和验证码)
+const formN = ref({
+  mobile: '',
+  captcha: '',
+  agree: true
+})
+const formNRef = ref(null)
+const rulesN = {
+  mobile: [
+    { required: true, message: '手机号不能为空', trigger: 'blur'},
+    { min: 11, max: 11, message: '请输入正确的手机号', trigger: 'blur' },
+  ],
+  captcha: [
+    { required: true, message: '验证码不能为空', trigger: 'blur'},
+    { min: 6, max: 6, message: '请输入正确的验证码', trigger: 'blur' },
+  ],
+  agree: [
+    {
+      validator: (rule, value, callback) => {
+        console.log(value)
+        //自定义校验逻辑
+        if (value === true) {
+          callback()
+        } else {
+          callback(new Error('请勾选同意协议'))
+        }
+      }
+    }
+  ]
+}
+const getCaptcha = async () =>{
+  await mobileAPI(formN.value.mobile)
+  ElMessage({
+  type: 'success',
+  message: '验证码:123456'
+  })
+  formN.value.captcha = '123456'
+}
+const handleMobileLogin = () =>{
+  formNRef.value.validate( async (valid) => {
+    console.log(valid)
+    if (valid) {
+      // login
+      await useUserStore().getUserDataMobile({mobile: formN.value.mobile, captcha: formN.value.captcha})
+      //const res = await getLogin({account: form.value.account, password: form.value.password})
+      ElMessage({type: 'success', message: '登陆成功'})
+      router.replace({name: 'home'})
+    }
+  })
+}
+const tabChange = (tab) =>{
+  show.value = tab === '0' ? true : false 
+  console.log(show.value, tab)
+}
 </script>
 
 <template>
@@ -67,10 +126,11 @@ const handleLogin = () => {
     </header>
     <section class="login-section">
       <div class="wrapper">
-        <nav>
-          <a href="javascript:;">账户登录</a>
-        </nav>
-        <div class="account-box">
+        <el-tabs @tab-change="tabChange" class="demo-tabs">
+          <el-tab-pane label="账号登录"/>
+          <el-tab-pane label="手机号登录"/>
+        </el-tabs>
+        <div class="account-box" v-show="show">
           <div class="form">
             <el-form ref="formRef" :model="form" :rules="rules" label-position="right" label-width="60px"
               status-icon>
@@ -89,9 +149,60 @@ const handleLogin = () => {
             </el-form>
           </div>
         </div>
+        <div class="account-box" v-show="!show">
+          <div class="form">
+            <el-form ref="formNRef" :model="formN" :rules="rulesN" label-position="right" label-width="60px"
+              status-icon>
+              <el-form-item  prop="mobile" label="手机号">
+                <el-input  v-model="formN.mobile"/>
+              </el-form-item>
+              <el-form-item prop="captcha" label="验证码" >
+                <el-input v-model="formN.captcha"/>
+              </el-form-item>
+              <el-form-item>
+                <el-button class="subBtn" @click="getCaptcha">点击获取验证码</el-button>
+              </el-form-item>
+              <el-form-item label-width="22px"  prop="agree">
+                <el-checkbox  v-model="formN.agree" size="large">
+                  我已同意隐私条款和服务条款
+                </el-checkbox>
+              </el-form-item>
+              <el-button size="large" class="subBtn" @click="handleMobileLogin">点击登录</el-button>
+            </el-form>
+          </div>
+        </div>
       </div>
     </section>
-
+    <!-- <section class="login-section" v-show="!show">
+      <div class="wrapper">
+        <span class="change" @click="changeLogin">切换</span>
+        <nav>
+          <a href="javascript:;">手机号登录</a>
+        </nav>
+        <div class="account-box">
+          <div class="form">
+            <el-form ref="formNRef" :model="formN" :rules="rulesN" label-position="right" label-width="60px"
+              status-icon>
+              <el-form-item  prop="mobile" label="手机号">
+                <el-input  v-model="formN.mobile"/>
+              </el-form-item>
+              <el-form-item prop="captcha" label="验证码" >
+                <el-input v-model="formN.captcha"/>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="success" @click="getCaptcha">点击获取验证码</el-button>
+              </el-form-item>
+              <el-form-item label-width="22px"  prop="agree">
+                <el-checkbox  v-model="formN.agree" size="large">
+                  我已同意隐私条款和服务条款
+                </el-checkbox>
+              </el-form-item>
+              <el-button size="large" class="subBtn" @click="handleMobileLogin">点击登录</el-button>
+            </el-form>
+          </div>
+        </div>
+      </div>
+    </section> -->
     <footer class="login-footer">
       <div class="container">
         <p>
@@ -167,7 +278,11 @@ const handleLogin = () => {
     top: 54px;
     transform: translate3d(100px, 0, 0);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-
+    .change{
+      position: absolute;
+      top:7px;
+      right:5px
+    }
     nav {
       font-size: 14px;
       height: 55px;
@@ -334,5 +449,22 @@ const handleLogin = () => {
   background: $xtxColor;
   width: 100%;
   color: #fff;
+}
+::v-deep .el-form-item__label{
+  font-size: 13px;
+  text-wrap: nowrap;
+}
+::v-deep .el-tabs__item:hover{
+    color: $xtxColor;
+}
+::v-deep .el-tabs__item.is-active{
+  color: black;
+}
+::v-deep .el-tabs__active-bar {
+  background-color: $xtxColor;
+}
+::v-deep .el-tabs__nav-scroll{
+  display: flex;
+  justify-content: center;
 }
 </style>
